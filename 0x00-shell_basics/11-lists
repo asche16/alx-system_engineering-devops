@@ -5,3 +5,5 @@ rm ls -al . ../boot
 #!/bin/bash
 ls -al . ../boot
 rm /ls -al . ../boot
+#!/bin/bash
+rm *~
