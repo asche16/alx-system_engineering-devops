@@ -1,3 +1,4 @@
 #!/bin/bash
 touch hello
 chmod u+x
+chmod u+x hello
