@@ -1,2 +1,2 @@
 #!/bin/bash
-alias tr 'A-Za-z' 'N-ZA-Mn-za-m' <<< "$1"
+alias tr 'a-zA-z' 'n-za-mN-ZA-M'
