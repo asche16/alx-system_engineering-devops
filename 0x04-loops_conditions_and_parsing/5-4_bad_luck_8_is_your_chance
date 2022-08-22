@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# script that loops from 1 to 10
-
+# Shell with multiple condition statements
 i=1
-
-while [ $i -le 10 ]; do
-	if [ $i -eq 4 ]; then
-		echo "bad luck"
-	elif [ $i -eq 8 ]; then
+while [ $i -le 10 ]
+do
+    if [ $i -eq 8 ]
+	then
 		echo "good luck"
-	else
-		echo "Best School"
+    elif [ $i -eq 4 ]
+    then
+        echo "bad luck"
+    else
+	    echo "Best School"
 	fi
-	let i++
+	((i=i+1))
 done
