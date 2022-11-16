@@ -1,30 +1,41 @@
-t uses REST api to return info on user's TODO and write to file
-'''
-
-import requests
-import sys
-
-
-def todocsv():
-    ''' function that gets todo tasks and exports data to csv file '''
-    r = requests.get('https://jsonplaceholder.typicode.com/users/{}'
-                     .format(sys.argv[1]))
-    new = r.json()
-    name = new.get('username')
-    userid = new.get('id')
-    r = requests.get('https://jsonplaceholder.typicode.com/users/{}/todos'
-                     .format(sys.argv[1]))
-    new = r.json()
-    size = len(new)
-    stat = []
-    titles = []
-    for i in range(0, size):
-        stat.append(new[i].get('completed'))
-        titles.append(new[i].get('title'))
-    with open("{}.csv".format(userid), 'w') as f:
-        for i in range(0, size):
-            f.write('"{}","{}","{}","{}"\n'.format(userid, name,
-                                                   stat[i], titles[i]))
+#!/usr/bin/python3
+""" Export to CSV  """
 
 if __name__ == "__main__":
-    todocsv()
+    import csv
+    from requests import get
+    from sys import argv, exit
+
+    try:
+        id = argv[1]
+        is_int = int(id)
+    except:
+        exit()
+
+    url_user = "https://jsonplaceholder.typicode.com/users?id=" + id
+    url_todo = "https://jsonplaceholder.typicode.com/todos?userId=" + id
+
+    r_user = get(url_user)
+    r_todo = get(url_todo)
+
+    try:
+        js_user = r_user.json()
+        js_todo = r_todo.json()
+
+    except ValueError:
+        print("Not a valid JSON")
+
+    if js_user and js_todo:
+        USER_ID = id
+        USERNAME = js_user[0].get('username')
+
+        with open(id + '.csv', 'w', newline='') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=',',
+                                    quotechar='"', quoting=csv.QUOTE_ALL)
+            for todo in js_todo:
+                TASK_COMPLETED_STATUS = todo.get("completed")
+                TASK_TITLE = todo.get('title')
+                spamwriter.writerow([USER_ID,
+                                     USERNAME,
+                                     TASK_COMPLETED_STATUS,
+                                     TASK_TITLE])

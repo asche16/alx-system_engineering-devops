@@ -1,37 +1,46 @@
-t uses REST api to return info on user's TODO and write to file
-'''
-
-import requests
-import sys
-
-
-def todojson():
-    ''' function that gets todo tasks and exports data to json file '''
-    r = requests.get('https://jsonplaceholder.typicode.com/users/{}'
-                     .format(sys.argv[1]))
-    new = r.json()
-    name = new.get('username')
-    userid = new.get('id')
-    r = requests.get('https://jsonplaceholder.typicode.com/users/{}/todos'
-                     .format(sys.argv[1]))
-    new = r.json()
-    size = len(new)
-    stat = []
-    titles = []
-    for i in range(0, size):
-        if new[i].get('completed'):
-            stat.append("true")
-        else:
-            stat.append("false")
-        titles.append(new[i].get('title'))
-    with open("{}.json".format(userid), 'w') as f:
-        f.write('{' + '"{}"'.format(userid)+': [')
-        for i in range(0, size - 1):
-            f.write('{{"task": "{}", "completed": {}, "username": "{}"}}, '
-                    .format(titles[i], stat[i], name))
-        f.write('{{"task": "{}", "completed": {}, "username": "{}"}}'
-                .format(titles[-1], stat[-1], name))
-        f.write(''']}''')
+#!/usr/bin/python3
+""" Export to JSON  """
 
 if __name__ == "__main__":
-    todojson()
+    import json
+    from requests import get
+    from sys import argv, exit
+
+    try:
+        id = argv[1]
+        is_int = int(id)
+    except:
+        exit()
+
+    url_user = "https://jsonplaceholder.typicode.com/users?id=" + id
+    url_todo = "https://jsonplaceholder.typicode.com/todos?userId=" + id
+
+    r_user = get(url_user)
+    r_todo = get(url_todo)
+
+    try:
+        js_user = r_user.json()
+        js_todo = r_todo.json()
+
+    except ValueError:
+        print("Not a valid JSON")
+
+    if js_user and js_todo:
+        USER_ID = id
+        USERNAME = js_user[0].get('username')
+
+        js_list = []
+        for todo in js_todo:
+            TASK_COMPLETED_STATUS = todo.get("completed")
+            TASK_TITLE = todo.get('title')
+
+            dic = {"task": TASK_TITLE,
+                   "completed": TASK_COMPLETED_STATUS,
+                   "username": USERNAME}
+
+            js_list.append(dic)
+
+        data = {USER_ID: js_list}
+
+        with open(id + '.json', 'w', newline='') as jsonfile:
+            json.dump(data, jsonfile)

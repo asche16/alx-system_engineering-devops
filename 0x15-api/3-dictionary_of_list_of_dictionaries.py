@@ -1,29 +1,42 @@
-t uses REST api to return info on user's TODO and write to file
-'''
+#!/usr/bin/python3
+""" Dictionary of list of dictionaries  """
 
-import json
-import requests
+if __name__ == "__main__":
+    import json
+    from requests import get
 
+    url_user = "https://jsonplaceholder.typicode.com/users"
+    url_todo = "https://jsonplaceholder.typicode.com/todos"
 
-def todojson():
-    ''' function that gets todo tasks and exports data to json file '''
-    ur = requests.get('https://jsonplaceholder.typicode.com/users').json()
-    tr = requests.get('https://jsonplaceholder.typicode.com/todos').json()
-    users_data = {}
-    for i in ur:
-        userid = i.get('id')
-        username = i.get('username')
-        todos = list(filter(lambda x: x.get('userId') == userid, tr))
-        user_data = list(map(
-            lambda x: {
-                'username': username,
-                'task': x.get('title'),
-                'completed': x.get('completed')
-            }, todos))
-        users_data['{}'.format(userid)] = user_data
-    with open('todo_all_employees.json', 'w') as f:
-        json.dump(users_data, f)
+    r_user = get(url_user)
+    r_todo = get(url_todo)
 
+    try:
+        js_user = r_user.json()
+        js_todo = r_todo.json()
 
-if __name__ == '__main__':
-    todojson()
+    except ValueError:
+        print("Not a valid JSON")
+
+    if js_user and js_todo:
+        data = {}
+        user_names = {}
+        for user in js_user:
+            USER_ID = user.get('id')
+            USERNAME = user.get('username')
+            data[USER_ID] = []
+            user_names[USER_ID] = USERNAME
+
+        for todo in js_todo:
+            TASK_COMPLETED_STATUS = todo.get("completed")
+            TASK_TITLE = todo.get('title')
+            user_id = todo.get("userId")
+            dic = {"task": TASK_TITLE,
+                   "completed": TASK_COMPLETED_STATUS,
+                   "username": user_names.get(user_id)}
+
+            if data.get(user_id) is not None:
+                data.get(user_id).append(dic)
+
+        with open('todo_all_employees.json', 'w', newline='') as jsonfile:
+            json.dump(data, jsonfile)
